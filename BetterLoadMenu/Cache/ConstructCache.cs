@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using BetterLoadMenu.Extensions;
 using System.IO;
 using BetterLoadMenu.Editor;
 using BetterLoadMenu.Utilities;

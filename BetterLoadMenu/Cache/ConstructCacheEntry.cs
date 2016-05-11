@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BetterLoadMenu.Cache
@@ -24,9 +23,11 @@ namespace BetterLoadMenu.Cache
             this.Facility = Utils.getFacilityFromSavePath(filePath);
             this.Thumbnail = thumbPath;
             this.ThumbnailTex = ShipConstruction.GetThumbnail(thumbPath);
+            Logger.Log("Thumbnail path: {0}", System.IO.Path.Combine(KSPUtil.ApplicationRootPath, string.Format("{0}.png", thumbPath)));
+            this.HasThumbnail = File.Exists(System.IO.Path.Combine(KSPUtil.ApplicationRootPath, string.Format("{0}.png", thumbPath)));
         }
 
-#pragma warning disable 0618
+#pragma warning disable 0618, 0612
         [Obsolete]
         public ConstructCacheEntry(ConstructCache c)
         {
@@ -39,7 +40,7 @@ namespace BetterLoadMenu.Cache
             this.Stages = c.Stages;
             this.Parts = c.PartCount;
         }
-#pragma warning restore 0618
+#pragma warning restore 0618, 0612
 
         public EditorFacility Facility { get; private set; }
 
@@ -106,5 +107,36 @@ namespace BetterLoadMenu.Cache
         public string Thumbnail { get; private set; }
         public Texture2D ThumbnailTex { get; private set; }
 
+        private bool _hasThumbnail = false;
+        public bool HasThumbnail
+        {
+            get
+            {
+                return this._hasThumbnail;
+            }
+            private set
+            {
+                this._hasThumbnail = value;
+            }
+        }
+
+        public void generateThumbnail()
+        {
+            ShipConstruct sc = /*ShipConstruction.LoadShip(this.FilePath);*/new ShipConstruct();
+            ConfigNode cn = ConfigNode.Load(this.FilePath);
+            sc.LoadShip(cn);
+            Logger.Log("Base folder: {0}", Utils.getKSPBaseFolder());
+            ShipConstruction.CaptureThumbnail(sc, Utils.getKSPBaseFolder(), string.Format("{0}.png", this.Thumbnail));
+            sc.LoadShip(new ConfigNode()); // Clear editor
+            this.HasThumbnail = true;
+            this.ThumbnailTex = ShipConstruction.GetThumbnail(this.Thumbnail);
+        }
+
+
+        public void updateThumbnail()
+        {
+            this.HasThumbnail = true;
+            this.ThumbnailTex = ShipConstruction.GetThumbnail(this.Thumbnail);
+        }
     }
 }

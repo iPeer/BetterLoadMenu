@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BetterLoadMenu.Utilities
 {
@@ -70,7 +69,7 @@ namespace BetterLoadMenu.Utilities
 
         public static string getFacilityNameFromSavePath(string path)
         {
-            string[] segs = path.Split(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+            string[] segs = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             string facility = segs[segs.Length - 2];
             return facility;
         }
@@ -83,9 +82,19 @@ namespace BetterLoadMenu.Utilities
         public static string getThumbnailPathForVesselName(string vesselName, EditorFacility editorFacility)
         {
             string fileName = String.Format("{0}_{1}_{2}.png", HighLogic.SaveFolder, editorFacility, KSPUtil.SanitizeFilename(vesselName));
-            string fullPath = Path.Combine(KSPUtil.ApplicationRootPath, "thumbs", fileName);
+            //string fullPath = Path.Combine(KSPUtil.ApplicationRootPath, "thumbs", fileName); // -- [Exception]: MissingMethodException: Method not found: 'System.IO.Path.Combine'. \\ I don't even know (it only happens here)
+            string fullPath = String.Format("thumbs{0}{1}", Path.DirectorySeparatorChar, fileName);
             return fullPath;
         }
 
+
+        public static string getKSPBaseFolder()
+        {
+            string root = KSPUtil.ApplicationRootPath; // .../Kerbal Space Program/../KSP[_x64]_Data
+            string realRoot = root.Split(new string[] { String.Format("..{0}", Path.DirectorySeparatorChar), String.Format("..{0}", Path.AltDirectorySeparatorChar) }, StringSplitOptions.None)[0];
+            Logger.Log(root);
+            string[] baseFolderData = /*realRoot*/root.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return baseFolderData[baseFolderData.Length - 4]+Path.DirectorySeparatorChar;
+        }
     }
 }

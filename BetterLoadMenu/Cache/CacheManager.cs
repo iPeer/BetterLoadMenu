@@ -4,17 +4,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BetterLoadMenu.Cache
 {
-    public class CacheManager
+
+    /*[KSPAddon(KSPAddon.Startup.EditorAny, true)]*/
+    public class CacheManager/* : MonoBehaviour */
     {
 
         private List<ConstructCacheEntry> ENTRY_CACHE = new List<ConstructCacheEntry>();
 
         public bool hasInitialised = false;
 
+        public static CacheManager Instance { get; private set; }
+
+        /*public void Start()
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }*/
 
         public void loadCache(bool force = false)
         {
@@ -76,7 +85,7 @@ namespace BetterLoadMenu.Cache
 
         public List<ConstructCacheEntry> getFullCache()
         {
-            return new List<ConstructCacheEntry>(ENTRY_CACHE.AsReadOnly());
+            return ENTRY_CACHE;
         }
 
         public int removeCacheEntry(ConstructCacheEntry cce)
@@ -105,6 +114,24 @@ namespace BetterLoadMenu.Cache
         public bool cacheUpdateNeededLight() // TODO
         {
             return true;
+        }
+
+        [Obsolete("Use deleteCraft(ConstructCacheEntry) instead", true)]
+        public void deleteCraft(int id)
+        {
+            ConstructCacheEntry cce = ENTRY_CACHE[id];
+            removeCacheEntry(cce);
+            File.Delete(cce.FilePath);
+            string path = Path.Combine(Utils.getCacheSaveDirectory(), string.Format("{1}_{0}.vessel", KSPUtil.SanitizeFilename(cce.VesselName), Utils.getFacilityNameFromSavePath(cce.FilePath)));
+            File.Delete(path);
+        }
+
+        public void deleteCraft(ConstructCacheEntry cce)
+        {
+            File.Delete(cce.FilePath);
+            removeCacheEntry(cce);
+            string path = Path.Combine(Utils.getCacheSaveDirectory(), string.Format("{1}_{0}.vessel", KSPUtil.SanitizeFilename(cce.VesselName), Utils.getFacilityNameFromSavePath(cce.FilePath)));
+            File.Delete(path);
         }
 
     }
