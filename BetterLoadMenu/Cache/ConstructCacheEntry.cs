@@ -5,13 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BetterLoadMenu.Cache
 {
     public class ConstructCacheEntry
     {
 
-        public ConstructCacheEntry(string filePath/*, EditorFacility facility*/, string vesselName, string vesselDescription, int stages, int parts, float cost, float weight)
+        public ConstructCacheEntry(string filePath/*, EditorFacility facility*/, string vesselName, string vesselDescription, int stages, int parts, float cost, float weight, string thumbPath)
         {
             this.FilePath = filePath;
             this.Name = vesselName;
@@ -20,8 +21,11 @@ namespace BetterLoadMenu.Cache
             this.Parts = parts;
             this.Cost = cost;
             this.Weight = weight;
-            //this.Facility = facility // TODO: Set this later when we can toggle it
+            this.Facility = Utils.getFacilityFromSavePath(filePath);
+            this.Thumbnail = thumbPath;
+            this.ThumbnailTex = ShipConstruction.GetThumbnail(thumbPath);
         }
+
 #pragma warning disable 0618
         [Obsolete]
         public ConstructCacheEntry(ConstructCache c)
@@ -51,6 +55,8 @@ namespace BetterLoadMenu.Cache
                 c.AddValue("VESSEL_DESCRIPTION", Description);
                 c.AddValue("VESSEL_PATH", FilePath);
                 c.AddValue("VESSEL_FACILITY", Facility);
+                c.AddValue("VESSEL_THUMBNAIL", Thumbnail);
+                c.AddValue("VESSEL_STAGES", Stages);
                 ConfigNode root = new ConfigNode();
                 root.AddNode(c);
                 return root;
@@ -59,12 +65,20 @@ namespace BetterLoadMenu.Cache
 
         public void saveCache()
         {
-            string path = Path.Combine(Utils.getCacheSaveDirectory(), string.Format("{0}.vessel", KSPUtil.SanitizeFilename(VesselName)));
+            string path = Path.Combine(Utils.getCacheSaveDirectory(), string.Format("{1}_{0}.vessel", KSPUtil.SanitizeFilename(VesselName), Utils.getFacilityNameFromSavePath(FilePath)));
             if (!Directory.Exists(Utils.getCacheSaveDirectory()))
             {
                 Directory.CreateDirectory(Utils.getCacheSaveDirectory());
             }
-            ConfigNode.Save(path);
+            try
+            {
+                ConfigNode.Save(path);
+            }
+            catch (Exception e) 
+            { 
+                Logger.LogError("Couldn't save cache data for '{0}': {1}", VesselName, e.ToString());
+                Logger.LogError("Stack trace: {0}", e.StackTrace);
+            }
         }
 
         public string Name { get; private set; }
@@ -88,6 +102,9 @@ namespace BetterLoadMenu.Cache
 
         public int Stages { get; private set; }
         public int Parts { get; private set; }
+
+        public string Thumbnail { get; private set; }
+        public Texture2D ThumbnailTex { get; private set; }
 
     }
 }

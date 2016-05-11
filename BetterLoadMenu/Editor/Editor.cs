@@ -28,21 +28,23 @@ namespace BetterLoadMenu.Editor
         SPH
     }
 
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
+    [KSPAddon(KSPAddon.Startup.EditorAny, true)]
     public class Editor : MonoBehaviour 
     {
 
         private ApplicationLauncherButton _button;
         private EditorType _editor = EditorType.VAB;
 
+        public CacheManager cacheManager;
+        public GUIManager guiManager;
         public static Editor Instance { get; private set; }
 
-        void Start()
+        void Awake()
         {
 
             Instance = this;
 
-            Logger.Log("Editor Start()");
+            Logger.Log("Editor Awake()");
             // TODO: Settings
 
             Logger.Log("Registering for events");
@@ -55,7 +57,22 @@ namespace BetterLoadMenu.Editor
             if (EditorDriver.editorFacility == EditorFacility.SPH)
                 _editor = EditorType.SPH;
 
+            if (cacheManager == null)
+            {
+                Logger.Log("Setting up cache manager");
+                cacheManager = new CacheManager();
+            }
 
+            if (guiManager == null)
+            {
+                Logger.Log("Setting up GUI Manager");
+                guiManager = new GUIManager();
+            }
+
+        }
+
+        void OnGUI() {
+            guiManager.OnGUI();
         }
 
         private void OnDestroy()
@@ -92,24 +109,40 @@ namespace BetterLoadMenu.Editor
         private void updateSavedVesselCache(SaveButtonSource sbs = SaveButtonSource.SAVE)
         {
 
+            string vesselName = "Auto-Saved Ship";
+            if (sbs == SaveButtonSource.SAVE)
+                vesselName = EditorLogic.fetch.shipNameField.text;
+            string savePath = Utils.getCurrentEditorShipPath(EditorDriver.editorFacility);
+            string fullSavePath = Path.Combine(savePath, String.Format("{0}.craft", KSPUtil.SanitizeFilename(vesselName)));
+
+            string vesselDescription = EditorLogic.fetch.shipDescriptionField.text;
+
+            int stages = Staging.StageCount;
+            int parts = EditorLogic.fetch.ship.parts.Count;
+            float _, __;
+            float weight = EditorLogic.fetch.ship.GetShipMass(out _, out __);
+            float cost = EditorLogic.fetch.ship.GetShipCosts(out _, out __);
+            string vesselThumbnail = Utils.getThumbnailPathForVesselName(vesselName, EditorDriver.editorFacility);
+
+            ConstructCacheEntry cce = new ConstructCacheEntry(fullSavePath, vesselName, vesselDescription, stages, parts, cost, weight, vesselThumbnail);
+            Logger.LogDebug("{0}", cce.ConfigNode);
+            cce.saveCache();
+            // TODO: Add to cache manager
+
         }
 
         private void loadButtonClick()
         {
-            FileInfo[] vessel_list = Utils.loadVesselsForCurrentEditor(_editor);
-            Logger.Log("------");
-            foreach (FileInfo f in vessel_list)
+            if (!cacheManager.hasInitialised)
             {
-                Logger.Log(f.FullName);
-                ConstructCache cc = new ConstructCache(f);
-                Logger.Log("----- Name: {0}, Weight: {1}, Cost: {2}, Stages: {3}", cc.VesselName, cc.Weight, cc.Cost, cc.Stages);
-                cc.CacheEntry.saveCache();
+                cacheManager.loadCache();
             }
+            GUIManager.Instance.guiVisible = true;
         }
 
         private void cancelVesselLoading()
         {
-
+            GUIManager.Instance.guiVisible = false;
         }
 
     }

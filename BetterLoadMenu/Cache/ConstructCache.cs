@@ -16,7 +16,7 @@ namespace BetterLoadMenu.Cache
         public ConstructCache(FileInfo fi, bool stock = false)
         {
             CraftEntry = new LoadCraftDialog.CraftEntry(fi, stock);
-            CacheEntry = new ConstructCacheEntry(fi.FullName, CraftEntry.template.shipName, CraftEntry.template.shipDescription, Stages, PartCount, Cost, Weight);
+            CacheEntry = new ConstructCacheEntry(fi.FullName, CraftEntry.template.shipName, CraftEntry.template.shipDescription, Stages, PartCount, Cost, Weight, CraftEntry.thumbURL);
         }
 
 #pragma warning disable 0618, 0612
@@ -38,7 +38,6 @@ namespace BetterLoadMenu.Cache
             Construct = c;
             CacheEntry = new ConstructCacheEntry(this);
         }
-
 #pragma warning restore 0618, 0612
 
         public LoadCraftDialog.CraftEntry CraftEntry { get; private set; }

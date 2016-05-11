@@ -28,6 +28,11 @@ namespace BetterLoadMenu.Utilities
             return di.GetFiles();
         }
 
+        public static FileInfo[] loadVesselsForCurrentEditor(EditorFacility editorFacility)
+        {
+            return loadVesselsForCurrentEditor(editorFacility == EditorFacility.SPH ? Editor.EditorType.SPH : Editor.EditorType.VAB);
+        }
+
         public static ShipConstruct loadVesselFromFile(string file)
         {
 
@@ -62,5 +67,25 @@ namespace BetterLoadMenu.Utilities
             string start = getCurrentEditorShipPath(facility);
             return Path.Combine(start, string.Format("{0}.craft", KSPUtil.SanitizeFilename(VesselName)));
         }
+
+        public static string getFacilityNameFromSavePath(string path)
+        {
+            string[] segs = path.Split(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+            string facility = segs[segs.Length - 2];
+            return facility;
+        }
+
+        public static EditorFacility getFacilityFromSavePath(string path)
+        {
+            return (getFacilityNameFromSavePath(path).Equals("SPH") ? EditorFacility.SPH : EditorFacility.VAB);
+        }
+
+        public static string getThumbnailPathForVesselName(string vesselName, EditorFacility editorFacility)
+        {
+            string fileName = String.Format("{0}_{1}_{2}.png", HighLogic.SaveFolder, editorFacility, KSPUtil.SanitizeFilename(vesselName));
+            string fullPath = Path.Combine(KSPUtil.ApplicationRootPath, "thumbs", fileName);
+            return fullPath;
+        }
+
     }
 }

@@ -32,25 +32,32 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>H:\Steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KSPCore">
       <HintPath>H:\Steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\KSPCore.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KSPUtil">
       <HintPath>H:\Steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\KSPUtil.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
       <HintPath>H:\Steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>H:\Steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Cache\ConstructCache.cs" />
     <Compile Include="Cache\ConstructCacheEntry.cs" />
     <Compile Include="Editor\Editor.cs" />
+    <Compile Include="Editor\GUIManager.cs" />
     <Compile Include="Extensions\ShipConstructExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Logger.cs" />
