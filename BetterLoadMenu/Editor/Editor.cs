@@ -36,29 +36,40 @@ namespace BetterLoadMenu.Editor
         public static Editor Instance { get; private set; }
 
         private bool buttonAdded = false;
+        private bool eventsRegistered = false;
 
         void Start()
         {
+            Logger.Log("Editor Start()");
+
             Instance = this;
             DontDestroyOnLoad(this);
+
+        }
+
+        private void onEditorStarted()
+        {
+            Logger.Log("Editor started.");
+            if (EditorDriver.editorFacility == EditorFacility.SPH)
+                _editor = EditorType.SPH;
+            cacheManager.updateCache();
         }
 
         void Awake()
         {
 
             Logger.Log("Editor Awake()");
-            // TODO: Settings
+            if (!eventsRegistered)
+            {
+                eventsRegistered = true;
+                Logger.Log("Registering for events");
+                GameEvents.onGUIApplicationLauncherReady.Add(() => manageToolbar(false));
+                GameEvents.onEditorStarted.Add(onEditorStarted);
 
-            Logger.Log("Registering for events");
-            GameEvents.onGUIApplicationLauncherReady.Add(() => manageToolbar(false));
-
-            Logger.Log("Adding button hooks");
-            EditorLogic.fetch.saveBtn.onClick.AddListener(() => updateSavedVesselCache());
-            EditorLogic.fetch.launchBtn.onClick.AddListener(() => updateSavedVesselCache(SaveButtonSource.LAUNCH));
-
-            if (EditorDriver.editorFacility == EditorFacility.SPH)
-                _editor = EditorType.SPH;
-
+                Logger.Log("Adding button hooks");
+                EditorLogic.fetch.saveBtn.onClick.AddListener(() => updateSavedVesselCache());
+                EditorLogic.fetch.launchBtn.onClick.AddListener(() => updateSavedVesselCache(SaveButtonSource.LAUNCH));
+            }
             if (cacheManager == null)
             {
                 Logger.Log("Setting up cache manager");
@@ -70,6 +81,7 @@ namespace BetterLoadMenu.Editor
                 Logger.Log("Setting up GUI Manager");
                 guiManager = new GUIManager();
             }
+            // TODO: Settings
 
         }
 

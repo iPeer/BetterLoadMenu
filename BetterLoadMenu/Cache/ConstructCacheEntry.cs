@@ -23,7 +23,7 @@ namespace BetterLoadMenu.Cache
             this.Facility = Utils.getFacilityFromSavePath(filePath);
             this.Thumbnail = thumbPath;
             this.ThumbnailTex = ShipConstruction.GetThumbnail(thumbPath);
-            Logger.Log("Thumbnail path: {0}", System.IO.Path.Combine(KSPUtil.ApplicationRootPath, string.Format("{0}.png", thumbPath)));
+            //Logger.Log("Thumbnail path: {0}", System.IO.Path.Combine(KSPUtil.ApplicationRootPath, string.Format("{0}.png", thumbPath)));
             this.HasThumbnail = File.Exists(System.IO.Path.Combine(KSPUtil.ApplicationRootPath, string.Format("{0}.png", thumbPath)));
         }
 
@@ -66,11 +66,9 @@ namespace BetterLoadMenu.Cache
 
         public void saveCache()
         {
-            string path = Path.Combine(Utils.getCacheSaveDirectory(), string.Format("{1}_{0}.vessel", KSPUtil.SanitizeFilename(VesselName), Utils.getFacilityNameFromSavePath(FilePath)));
-            if (!Directory.Exists(Utils.getCacheSaveDirectory()))
-            {
-                Directory.CreateDirectory(Utils.getCacheSaveDirectory());
-            }
+            string facility = Utils.getFacilityNameFromSavePath(FilePath);
+            string path = Path.Combine(Utils.getCacheSaveDirectory(this.Facility), string.Format("{0}.vessel", KSPUtil.SanitizeFilename(VesselName)));
+            Utils.createCacheDirectories();
             try
             {
                 ConfigNode.Save(path);
@@ -125,7 +123,7 @@ namespace BetterLoadMenu.Cache
             ShipConstruct sc = /*ShipConstruction.LoadShip(this.FilePath);*/new ShipConstruct();
             ConfigNode cn = ConfigNode.Load(this.FilePath);
             sc.LoadShip(cn);
-            Logger.Log("Base folder: {0}", Utils.getKSPBaseFolder());
+            //Logger.Log("Base folder: {0}", Utils.getKSPBaseFolder());
             ShipConstruction.CaptureThumbnail(sc, Utils.getKSPBaseFolder(), string.Format("{0}.png", this.Thumbnail));
             sc.LoadShip(new ConfigNode()); // Clear editor
             this.HasThumbnail = true;

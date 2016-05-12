@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Cache\ConstructCache.cs" />
+    <Compile Include="Cache\ConstructCacheData.cs" />
     <Compile Include="Cache\ConstructCacheEntry.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\GUIManager.cs" />

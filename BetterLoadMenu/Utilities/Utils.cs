@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BetterLoadMenu.Utilities
@@ -56,9 +57,21 @@ namespace BetterLoadMenu.Utilities
 
         }
 
-        public static string getCacheSaveDirectory()
+
+        public static string getCacheSaveBaseDirectory()
         {
             return String.Format("{0}saves/{1}/Ships/BLM_CACHE/", KSPUtil.ApplicationRootPath, HighLogic.SaveFolder);
+        }
+
+        public static string getCacheSaveDirectory(EditorFacility editorFacility = EditorFacility.VAB)
+        {
+            return String.Format("{0}/{1}/", getCacheSaveBaseDirectory(), editorFacility.ToString());
+        }
+
+        public static FileInfo[] getCacheFilesForEditor(EditorFacility facility)
+        {
+            string path = getCacheSaveDirectory(facility);
+            return (new DirectoryInfo(path)).GetFiles();
         }
 
         public static string getSavePathForVesselName(string VesselName, EditorFacility facility)
@@ -95,6 +108,35 @@ namespace BetterLoadMenu.Utilities
             Logger.Log(root);
             string[] baseFolderData = /*realRoot*/root.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             return baseFolderData[baseFolderData.Length - 4]+Path.DirectorySeparatorChar;
+        }
+
+        public static string getHashForFile(FileInfo f)
+        {
+            using (FileStream fs = File.OpenRead(f.FullName))
+            {
+                SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider(); // We're (quickly) checking if the file has changed, not storing passwords, so SHA1 will work just fine
+                byte[] bytes = sha1.ComputeHash(fs);
+                return BitConverter.ToString(bytes); // The dashes can stay.
+            }
+        }
+
+        public static void createCacheDirectories()
+        {
+            if (!Directory.Exists(Utils.getCacheSaveDirectory()))
+                Directory.CreateDirectory(Utils.getCacheSaveBaseDirectory());
+            if (!Directory.Exists(Utils.getCacheSaveDirectory(EditorFacility.SPH)))
+                Directory.CreateDirectory(Utils.getCacheSaveDirectory(EditorFacility.SPH));
+            if (!Directory.Exists(Utils.getCacheSaveDirectory(EditorFacility.VAB)))
+                Directory.CreateDirectory(Utils.getCacheSaveDirectory(EditorFacility.VAB));
+        }
+
+        public static string createNodeNameFromCraftFile(string fileName)
+        {
+            string[] replace = new string[] { "(", ")", " ", "{", "}" };
+            foreach (string c in replace) 
+                fileName = fileName.Replace(c, "_");
+            return fileName;
+            
         }
     }
 }
